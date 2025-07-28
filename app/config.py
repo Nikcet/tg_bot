@@ -20,7 +20,7 @@ class Config(BaseSettings):
 
 @lru_cache
 def get_config() -> Config:
-    logger.info("Loading settings...")
+    logger.info("Loading config from env...")
     return Config()
 
 

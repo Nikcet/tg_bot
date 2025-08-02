@@ -2,8 +2,8 @@ from typing import Optional, List
 from sqlmodel import SQLModel, Session, create_engine, select
 from datetime import datetime
 
-from app import logger
-from app.database.models import User
+from app.database import logger
+from app.database.models import User, Language
 
 
 class DatabaseConnection:
@@ -16,9 +16,9 @@ class DatabaseConnection:
     def _init_database(self):
         try:
             SQLModel.metadata.create_all(self.engine)
-            logger.info("База данных инициализирована")
+            logger.success("Database connection is created.")
         except Exception as e:
-            logger.error(f"Ошибка при инициализации базы данных: {e}")
+            logger.error(f"Failed to create a database connection: {e}")
             raise
 
     def get_session(self) -> Session:
@@ -30,6 +30,10 @@ class DatabaseConnection:
         first_name: str,
         last_name: Optional[str] = None,
         username: Optional[str] = None,
+        language: Language = Language.ENGLISH,
+        preferences: str = "",
+        is_premium: bool = False,
+        is_admin: bool = False,
     ) -> Optional[User]:
         try:
             with self.get_session() as session:
@@ -38,14 +42,18 @@ class DatabaseConnection:
                     first_name=first_name,
                     last_name=last_name,
                     username=username,
+                    language=language,
+                    preferences=preferences,
+                    is_premium=is_premium,
+                    is_admin=is_admin,
                 )
                 session.add(user)
                 session.commit()
                 session.refresh(user)
-                logger.info(f"Создан пользователь: {user_id}")
+                logger.info(f"User is created: {user_id}")
                 return user
         except Exception as e:
-            logger.error(f"Ошибка при создании пользователя: {e}")
+            logger.error(f"Failed to create user: {e}")
             return None
 
     def get_user_by_id(self, user_id: int) -> Optional[User]:
@@ -55,7 +63,7 @@ class DatabaseConnection:
                 user = session.exec(statement).first()
                 return user
         except Exception as e:
-            logger.error(f"Ошибка при получении пользователя: {e}")
+            logger.error(f"Failed to get user: {e}")
             return None
 
     def update_user_activity(self, user_id: int) -> bool:
@@ -70,7 +78,7 @@ class DatabaseConnection:
                     return True
                 return False
         except Exception as e:
-            logger.error(f"Ошибка при обновлении активности пользователя: {e}")
+            logger.error(f"Failed to update user activity: {e}")
             return False
 
     def get_all_users(self) -> List[User]:
@@ -80,7 +88,7 @@ class DatabaseConnection:
                 users = list(session.exec(statement).all())
                 return users
         except Exception as e:
-            logger.error(f"Ошибка при получении пользователей: {e}")
+            logger.error(f"Failed to get all users: {e}")
             return []
 
     def delete_user(self, user_id: int) -> bool:
@@ -91,9 +99,9 @@ class DatabaseConnection:
                 if user:
                     session.delete(user)
                     session.commit()
-                    logger.info(f"Удален пользователь: {user_id}")
+                    logger.success(f"User is succesfully deleted: {user_id}")
                     return True
                 return False
         except Exception as e:
-            logger.error(f"Ошибка при удалении пользователя: {e}")
+            logger.error(f"Failed to delete a user: {e}")
             return False

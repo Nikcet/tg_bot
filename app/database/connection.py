@@ -2,7 +2,7 @@ from typing import Optional, List
 from sqlmodel import SQLModel, Session, create_engine, select
 from datetime import datetime
 
-from app.database import logger
+from app import logger
 from app.database.models import User, Language
 
 

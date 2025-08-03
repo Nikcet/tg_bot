@@ -3,7 +3,7 @@ from sqlmodel import SQLModel, Session, create_engine, select
 from datetime import datetime
 
 from app import logger
-from app.database.models import User, Language
+from app.models import User, Language
 
 
 class DatabaseConnection:
